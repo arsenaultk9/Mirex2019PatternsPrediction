@@ -1,23 +1,16 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import src.image_generator as ig
+from src.models.note_info import NoteInfo
 
-laten_dim = 100
+file_name = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/1aea36b4-52ac-4890-9c63-1ddfa5709804.csv'
 
-
-def sample_images(epoch):
-    r, c = 5, 5
-    noise = np.random.normal(0, 1, (r * c, 25, 25))
-
-    fig, axs = plt.subplots(r, c)
-    cnt = 0
-    for i in range(r):
-        for j in range(c):
-            axs[i, j].imshow(noise[cnt, :], cmap='winter')
-            axs[i, j].axis('off')
-            cnt += 1
-
-    fig.savefig("images/%d.png" % epoch)
-    plt.close()
+# Data columns: Starting beat(Quarter notes), Pitch (0, 127), relative Pitch, Length(Quarter notes), Midi Channel
+file_data = np.loadtxt(file_name, delimiter=",")
 
 
-sample_images(0)
+def noteInfoFactory(note_data):
+    return NoteInfo(note_data)
+
+
+note_infos = list(map(noteInfoFactory, file_data))
+ig.sample_images(0)

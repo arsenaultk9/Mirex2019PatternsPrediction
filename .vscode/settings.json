@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    ".pytest_cache": true,
+    ".vscode": true,
+    "src\\__pycache__": true
+  }
+}
