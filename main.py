@@ -12,7 +12,7 @@ def sample_images(epoch):
     cnt = 0
     for i in range(r):
         for j in range(c):
-            axs[i, j].imshow(noise[cnt, :], cmap='gray')
+            axs[i, j].imshow(noise[cnt, :], cmap='winter')
             axs[i, j].axis('off')
             cnt += 1
 
