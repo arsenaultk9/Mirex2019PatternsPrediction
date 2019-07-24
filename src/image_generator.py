@@ -4,7 +4,7 @@ import numpy as np
 
 def sample_images(epoch):
     r, c = 5, 5
-    noise = np.random.normal(0, 1, (r * c, 128, 64))
+    noise = np.random.normal(0, 1, (r * c, 128, 192))
 
     fig, axs = plt.subplots(r, c)
     cnt = 0
