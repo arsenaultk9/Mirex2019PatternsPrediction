@@ -16,3 +16,12 @@ def sample_images(epoch):
 
     fig.savefig("images/%d.png" % epoch)
     plt.close()
+
+
+def sample_image(name, data):
+    fig, axs = plt.subplots()
+    axs.imshow(data, cmap='winter')
+    axs.axis('off')
+
+    fig.savefig("images/%s.png" % name)
+    plt.close()

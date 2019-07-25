@@ -1,4 +1,6 @@
 import sys
+import src.constants as constants
+import numpy as np
 
 
 # With 12 quadrants per beat we cover each situation
@@ -17,4 +19,19 @@ def generate_song_matrix(note_infos):
         if(note_end >= max_beat_pos):
             max_beat_pos = note_end
 
-    return ''
+    song_length = int((max_beat_pos - min_beat_pos)
+                      * constants.SEGEMENTS_PER_BEAT)
+    song_matrix = np.zeros((constants.MIDI_NOTE_COUNT, song_length))
+
+    # Not the most optimized way to do this but at least it's simple so easier to debug :)
+    for song_beat_pos in range(song_length):
+        current_song_pos_quadrant = min_beat_pos + \
+            song_beat_pos / constants.SEGEMENTS_PER_BEAT
+
+        for note_info in note_infos:
+            if not note_info.is_on_at_beat(current_song_pos_quadrant):
+                continue
+
+            song_matrix[note_info.pitch, song_beat_pos] = 1
+
+    return song_matrix
