@@ -8,7 +8,7 @@ def test_is_on_at_beat_when_before_beat_is_false():
     assert is_on_beat is False
 
 
-def test_is_on_at_beat_when_after_beat_is_false():
+def test_is_on_at_beat_when_after_beat_is_false(): 
     note = NoteInfo.create(1)
     is_on_beat = note.is_on_at_beat(2)
 

@@ -10,7 +10,6 @@ import src.constants as constants
 
 class NoteInfo:
     def __init__(self, note_data):
-        print(note_data[0])
         self.starting_beat = float(note_data[0])
         self.pitch = note_data[1]
         self.relative_pitch = note_data[2]
