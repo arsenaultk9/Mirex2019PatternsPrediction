@@ -11,4 +11,4 @@ note_infos = list(map(NoteInfo, file_data))
 song_matrix = smg.generate_song_matrix(note_infos)
 X, Y = swsg.generate_window_slide(song_matrix)
 
-ig.sample_images('song_matrix_2', X)
+ig.sample_image('song_matrix_2', X[0, 40:90])
