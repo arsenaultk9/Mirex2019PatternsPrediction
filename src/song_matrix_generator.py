@@ -34,4 +34,4 @@ def generate_song_matrix(note_infos):
 
             song_matrix[note_info.pitch, song_beat_pos] = 1
 
-    return song_matrix
+    return min_beat_pos, song_matrix

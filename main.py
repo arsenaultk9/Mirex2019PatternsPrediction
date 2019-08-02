@@ -19,11 +19,13 @@ for file_name in file_names:
     file_data = np.loadtxt(file_name, delimiter=",")
 
     note_infos = list(map(NoteInfo, file_data))
-    song_matrix = smg.generate_song_matrix(note_infos)
+    min_beat_pos, song_matrix = smg.generate_song_matrix(note_infos)
     cur_X, cur_Y = swsg.generate_window_slide(song_matrix)
 
     X = np.vstack((X, cur_X))
     Y = np.vstack((Y, cur_Y))
 
-    ig.sample_image('song_matrix_%d' % file_index, X[0, 40:90])
-    scg.generate_song_csv('test_%d' % file_index, song_matrix)
+    ig.sample_image('song_matrix_%d' % file_index, song_matrix)
+    scg.generate_song_csv('test_%d' % file_index, song_matrix, min_beat_pos)
+
+    file_index += 1

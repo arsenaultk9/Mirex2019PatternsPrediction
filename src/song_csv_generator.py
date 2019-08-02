@@ -11,7 +11,7 @@ import src.constants as constants
 # Midi Channel
 
 
-def generate_song_csv(file_name, song_matrix):
+def generate_song_csv(file_name, song_matrix, start_point):
     file_path = "generated/%s.csv" % file_name
     notes = []
 
@@ -28,7 +28,7 @@ def generate_song_csv(file_name, song_matrix):
             if song_matrix[note_index, current_pos_in_quadrant] == 0 and \
                     started:
 
-                ended_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT
+                ended_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT + start_point
                 note = np.array([started_pos,
                                  int(note_index),
                                  int(note_index),
@@ -41,7 +41,8 @@ def generate_song_csv(file_name, song_matrix):
 
             if song_matrix[note_index, current_pos_in_quadrant] == 1 and \
                     not started:
-                started_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT
+                started_pos = current_pos_in_quadrant / \
+                    constants.SEGEMENTS_PER_BEAT + start_point
                 started = True
 
     notes = np.array(notes)
