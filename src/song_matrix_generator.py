@@ -19,7 +19,7 @@ def generate_song_matrix(note_infos):
         if(note_end >= max_beat_pos):
             max_beat_pos = note_end
 
-    song_length = int((max_beat_pos - min_beat_pos)
+    song_length = int((max_beat_pos - min_beat_pos + 1)
                       * constants.SEGEMENTS_PER_BEAT)
     song_matrix = np.zeros((constants.MIDI_NOTE_COUNT, song_length))
 
