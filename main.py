@@ -5,6 +5,7 @@ import src.song_window_slide_generator as swsg
 import src.song_csv_generator as scg
 import src.constants as constants
 from src.models.note_info import NoteInfo
+from src.neural_network import NeuralNetwork
 
 file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf21-537603fbe758.csv'
 file_name_b = 'data/PPDD-Sep2018_sym_poly_small/prime_csv/0a240995-eb9b-4070-b859-0c3eba04fa04.csv'
@@ -29,3 +30,6 @@ for file_name in file_names:
     scg.generate_song_csv('test_%d' % file_index, song_matrix, min_beat_pos)
 
     file_index += 1
+
+network = NeuralNetwork(X, Y)
+network.train()
