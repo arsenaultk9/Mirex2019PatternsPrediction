@@ -61,7 +61,7 @@ class NeuralNetwork:
             segment = self.X[start_index]
             generated += one_hot_encoding_to_music_sequence(
                 np.swapaxes(segment, 0, 1))
-            sys.stdout.write(generated)
+            sys.stdout.write(generated + " | ")
 
             for i in range(64):
                 x_pred = np.array([segment])
