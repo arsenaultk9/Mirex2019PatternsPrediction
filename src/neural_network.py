@@ -52,6 +52,9 @@ class NeuralNetwork:
                            metrics=[metrics.mae, metrics.categorical_accuracy])
 
     def on_epoch_end(self, epoch, _):
+        if(epoch < 100):
+            return
+
         # Function invoked at end of each epoch. Prints generated text.
         print()
         print('----- Generating text after Epoch: %d' % epoch)
@@ -62,8 +65,7 @@ class NeuralNetwork:
 
             generated = ''
             segment = self.X[start_index]
-            generated += one_hot_encoding_to_music_sequence(
-                np.swapaxes(segment, 0, 1))
+            generated += one_hot_encoding_to_music_sequence(segment)
             sys.stdout.write(generated + " | ")
 
             for i in range(64):
@@ -76,10 +78,9 @@ class NeuralNetwork:
 
                 next_note_arr = np.zeros((constants.MIDI_NOTE_COUNT))
                 next_note_arr[next_index] = 1
-                next_note_arr = np.swapaxes([next_note_arr], 0, 1)
 
-                segment = np.hstack(
-                    (segment[:, 1:segment.shape[1]], next_note_arr))
+                segment = np.vstack(
+                    (segment[1:segment.shape[0]], next_note_arr))
 
                 sys.stdout.write(
                     note_parser.parse_number_to_note(next_index) + ' ')
@@ -92,5 +93,5 @@ class NeuralNetwork:
         self.model.fit(self.X, self.Y,
                        batch_size=128,
                        epochs=240,
-                       shuffle=False)  # ,
-        # callbacks=[print_callback])
+                       shuffle=False,
+                       callbacks=[print_callback])
