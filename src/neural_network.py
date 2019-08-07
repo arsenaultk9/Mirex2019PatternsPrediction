@@ -41,9 +41,9 @@ class NeuralNetwork:
         self.Y = Y
 
         self.model = Sequential()
-        self.model.add(LSTM(128, return_sequences=True, input_shape=(
+        self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
-        self.model.add(LSTM(128))
+        # self.model.add(LSTM(128))
         self.model.add(Dense(128, activation='softmax', name='ouput'))
 
         optimizer = RMSprop(lr=0.001)

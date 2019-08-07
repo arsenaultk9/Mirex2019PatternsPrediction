@@ -15,7 +15,7 @@ def sample_images(name, data):
 
 def sample_image(name, data):
     fig, axs = plt.subplots()
-    axs.imshow(data, cmap='winter')
+    axs.imshow(np.swapaxes(data, 0, 1), cmap='winter')
     axs.axis('off')
 
     fig.savefig("images/%s.png" % name)

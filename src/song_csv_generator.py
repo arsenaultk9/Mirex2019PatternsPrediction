@@ -15,17 +15,17 @@ def generate_song_csv(file_name, song_matrix, start_point):
     file_path = "generated/%s.csv" % file_name
     notes = []
 
-    for note_index in range(song_matrix.shape[0]):
+    for note_index in range(song_matrix.shape[1]):
         current_pos_in_quadrant = 0
         started = False
         started_pos = 0
 
-        for current_pos_in_quadrant in range(song_matrix.shape[1]):
-            if song_matrix[note_index, current_pos_in_quadrant] == 0 and \
+        for current_pos_in_quadrant in range(song_matrix.shape[0]):
+            if song_matrix[current_pos_in_quadrant, note_index] == 0 and \
                     not started:
                 continue
 
-            if song_matrix[note_index, current_pos_in_quadrant] == 0 and \
+            if song_matrix[current_pos_in_quadrant, note_index] == 0 and \
                     started:
 
                 ended_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT + start_point
@@ -39,7 +39,7 @@ def generate_song_csv(file_name, song_matrix, start_point):
 
                 continue
 
-            if song_matrix[note_index, current_pos_in_quadrant] == 1 and \
+            if song_matrix[current_pos_in_quadrant, note_index] == 1 and \
                     not started:
                 started_pos = current_pos_in_quadrant / \
                     constants.SEGEMENTS_PER_BEAT + start_point

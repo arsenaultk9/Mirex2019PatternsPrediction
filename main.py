@@ -13,7 +13,7 @@ file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e7
 file_names = [file_name_a, file_name_b]
 
 file_index = 0
-X = np.zeros((0, constants.MIDI_NOTE_COUNT, constants.WINDOW_SLIDE_SIZE))
+X = np.zeros((0, constants.WINDOW_SLIDE_SIZE, constants.MIDI_NOTE_COUNT))
 Y = np.zeros((0, constants.MIDI_NOTE_COUNT))
 
 for file_name in file_names:
