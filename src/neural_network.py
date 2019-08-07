@@ -44,7 +44,8 @@ class NeuralNetwork:
         self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
         # self.model.add(LSTM(128))
-        self.model.add(Dense(128, activation='softmax', name='ouput'))
+        self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
+                             activation='softmax', name='ouput'))
 
         optimizer = RMSprop(lr=0.001)
         self.model.compile(loss='categorical_crossentropy',
@@ -52,7 +53,7 @@ class NeuralNetwork:
                            metrics=[metrics.mae, metrics.categorical_accuracy])
 
     def on_epoch_end(self, epoch, _):
-        if(epoch < 100):
+        if(epoch < 72):
             return
 
         # Function invoked at end of each epoch. Prints generated text.
@@ -76,7 +77,8 @@ class NeuralNetwork:
 
                 # generated += ', ' + str(next_index)
 
-                next_note_arr = np.zeros((constants.MIDI_NOTE_COUNT))
+                next_note_arr = np.zeros(
+                    (constants.MIDI_NOTE_AND_SILENCE_COUNT))
                 next_note_arr[next_index] = 1
 
                 segment = np.vstack(

@@ -16,6 +16,10 @@ def generate_song_csv(file_name, song_matrix, start_point):
     notes = []
 
     for note_index in range(song_matrix.shape[1]):
+        # Skip silence note
+        if note_index == 0:
+            continue
+
         current_pos_in_quadrant = 0
         started = False
         started_pos = 0
@@ -30,8 +34,8 @@ def generate_song_csv(file_name, song_matrix, start_point):
 
                 ended_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT + start_point
                 note = np.array([started_pos,
-                                 int(note_index),
-                                 int(note_index),
+                                 int(note_index - 1),
+                                 int(note_index - 1),
                                  ended_pos - started_pos,
                                  0])
                 notes.append(note)
