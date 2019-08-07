@@ -7,6 +7,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
+from keras import metrics
 
 import src.constants as constants
 import src.note_parser as note_parser
@@ -40,13 +41,15 @@ class NeuralNetwork:
         self.Y = Y
 
         self.model = Sequential()
-        self.model.add(LSTM(128, input_shape=(
-            X.shape[1], X.shape[2]), name='input'))
+        self.model.add(LSTM(128, return_sequences=True, input_shape=(
+            X.shape[1], X.shape[2])))
+        self.model.add(LSTM(128))
         self.model.add(Dense(128, activation='softmax', name='ouput'))
 
         optimizer = RMSprop(lr=0.001)
         self.model.compile(loss='categorical_crossentropy',
-                           optimizer=optimizer)
+                           optimizer=optimizer,
+                           metrics=[metrics.mae, metrics.categorical_accuracy])
 
     def on_epoch_end(self, epoch, _):
         # Function invoked at end of each epoch. Prints generated text.
@@ -89,5 +92,5 @@ class NeuralNetwork:
         self.model.fit(self.X, self.Y,
                        batch_size=128,
                        epochs=240,
-                       shuffle=False,
-                       callbacks=[print_callback])
+                       shuffle=False)  # ,
+        # callbacks=[print_callback])

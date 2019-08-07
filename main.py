@@ -8,7 +8,7 @@ from src.models.note_info import NoteInfo
 from src.neural_network import NeuralNetwork
 
 file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf21-537603fbe758.csv'
-file_name_b = 'data/PPDD-Sep2018_sym_poly_small/prime_csv/0a240995-eb9b-4070-b859-0c3eba04fa04.csv'
+file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = [file_name_a, file_name_b]
 
