@@ -94,6 +94,27 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=128,
-                       epochs=240,
+                       epochs=120,  # 240
                        shuffle=False,
                        callbacks=[print_callback])
+
+    def generate_continuation(self, last_window_slide,
+                              quarter_beats_to_generate):
+
+        total_slides_to_generate = quarter_beats_to_generate * constants.SEGEMENTS_PER_BEAT
+        contuation = []
+
+        sequence = last_window_slide
+
+        for index in range(total_slides_to_generate):
+            prediction = self.model.predict(np.array([sequence]))[0]
+            next_index = sample(prediction, 0.2)
+            next_note_arr = np.zeros(
+                (constants.MIDI_NOTE_AND_SILENCE_COUNT))
+            next_note_arr[next_index] = 1
+            contuation.append(next_note_arr)
+
+            sequence = np.vstack(
+                (sequence[1:sequence.shape[0]], next_note_arr))
+
+        return np.array(contuation)

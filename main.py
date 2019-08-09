@@ -21,7 +21,8 @@ for file_name in file_names:
     file_data = np.loadtxt(file_name, delimiter=",")
 
     note_infos = list(map(NoteInfo, file_data))
-    min_beat_pos, song_matrix = smg.generate_song_matrix(note_infos)
+    min_beat_pos, max_beat_pos, song_matrix = smg.generate_song_matrix(
+        note_infos)
     cur_X, cur_Y = swsg.generate_window_slide(song_matrix)
 
     X = np.vstack((X, cur_X))
@@ -34,3 +35,7 @@ for file_name in file_names:
 
 network = NeuralNetwork(X, Y)
 network.train()
+
+continuation = network.generate_continuation(cur_X[-1], 10)
+ig.sample_image('song_matrix_continuation', continuation)
+scg.generate_song_csv('test_continuation', continuation, max_beat_pos)

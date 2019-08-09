@@ -40,4 +40,4 @@ def generate_song_matrix(note_infos):
         if not has_note:
             song_matrix[0, song_beat_pos] = 1
 
-    return min_beat_pos, np.swapaxes(song_matrix, 0, 1)
+    return min_beat_pos, max_beat_pos, np.swapaxes(song_matrix, 0, 1)
