@@ -8,7 +8,7 @@ import src.song_csv_generator as scg
 import src.constants as constants
 
 from src.models.note_info import NoteInfo
-from src.neural_network import NeuralNetwork
+from src.networks.poly_neural_network import NeuralNetwork
 
 directory = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/'
 file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf21-537603fbe758.csv'
