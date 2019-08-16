@@ -17,22 +17,31 @@ maxlen = 31
 
 def one_hot_encoding_to_music_sequence(segment):
     text = ''
+
     for row in segment:
+        text += '('
         for index in range(len(row)):
             if(row[index] == 1):
                 text += note_parser.parse_number_to_note(index) + ' '
+
+        text += ')'
 
     return text
 
 
 def sample(preds, temperature=1.0):
+    predict_from_threshold = np.zeros(preds.shape)
+
     # helper function to sample an index from a probability array
     preds = np.asarray(preds).astype('float64')
-    preds = np.log(preds) / temperature
-    exp_preds = np.exp(preds)
-    preds = exp_preds / np.sum(exp_preds)
-    probas = np.random.multinomial(1, preds, 1)
-    return np.argmax(probas)
+    preds[preds >= 0.5] = 1
+    preds[preds < 0.5] = 0
+
+    # in case nothing is to predict, predict silence.
+    if(len(preds[preds >= 0.5]) == 0):
+        preds[0] = 1
+
+    return preds
 
 
 class NeuralNetwork:
@@ -53,8 +62,8 @@ class NeuralNetwork:
                            metrics=[metrics.mae, metrics.categorical_accuracy])
 
     def on_epoch_end(self, epoch, _):
-        if(epoch < 72):
-            return
+        # if(epoch < 72):
+        #     return
 
         # Function invoked at end of each epoch. Prints generated text.
         print()
@@ -73,19 +82,16 @@ class NeuralNetwork:
                 x_pred = np.array([segment])
 
                 preds = self.model.predict(x_pred, verbose=0)[0]
-                next_index = sample(preds, diversity)
+                preds_normalized = sample(preds, diversity)
 
-                # generated += ', ' + str(next_index)
-
-                next_note_arr = np.zeros(
-                    (constants.MIDI_NOTE_AND_SILENCE_COUNT))
-                next_note_arr[next_index] = 1
+                generated += ', ' + \
+                    one_hot_encoding_to_music_sequence([preds_normalized])
 
                 segment = np.vstack(
-                    (segment[1:segment.shape[0]], next_note_arr))
+                    (segment[1:segment.shape[0]], preds_normalized))
 
                 sys.stdout.write(
-                    note_parser.parse_number_to_note(next_index) + ' ')
+                    one_hot_encoding_to_music_sequence([preds_normalized]) + ', ')
                 sys.stdout.flush()
             print()
 
