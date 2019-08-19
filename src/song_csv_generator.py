@@ -49,6 +49,8 @@ def generate_song_csv(file_name, song_matrix, start_point):
                     constants.SEGEMENTS_PER_BEAT + start_point
                 started = True
 
-    notes = np.array(notes)
-    notes = notes[notes[:, 0].argsort()]
+    if(len(notes) > 0):
+        notes = np.array(notes)
+        notes = notes[notes[:, 0].argsort()]
+
     np.savetxt(file_path, notes, delimiter=',', fmt='%1.3f')

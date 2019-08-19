@@ -6,6 +6,7 @@ from keras.callbacks import LambdaCallback
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
+from keras.layers import Dropout
 from keras.optimizers import RMSprop
 from keras.optimizers import SGD
 from keras import metrics
@@ -54,6 +55,7 @@ class NeuralNetwork:
         self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
         # self.model.add(LSTM(128))
+        # self.model.add(Dropout(0.5))
         self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
                              activation='sigmoid', name='ouput'))
 
@@ -98,7 +100,7 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=128,
-                       epochs=254,
+                       epochs=128,
                        shuffle=False,
                        callbacks=[print_callback])
 
