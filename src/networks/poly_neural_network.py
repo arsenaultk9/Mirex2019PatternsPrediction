@@ -7,6 +7,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
+from keras.optimizers import SGD
 from keras import metrics
 
 import src.constants as constants
@@ -29,7 +30,7 @@ def one_hot_encoding_to_music_sequence(segment):
     return text
 
 
-def sample(preds, temperature=1.0):
+def sample(preds):
     predict_from_threshold = np.zeros(preds.shape)
 
     # helper function to sample an index from a probability array
@@ -54,53 +55,50 @@ class NeuralNetwork:
             X.shape[1], X.shape[2])))
         # self.model.add(LSTM(128))
         self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
-                             activation='softmax', name='ouput'))
+                             activation='sigmoid', name='ouput'))
 
-        optimizer = RMSprop(lr=0.001)
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer=optimizer,
-                           metrics=[metrics.mae, metrics.categorical_accuracy])
+        sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        self.model.compile(loss={"ouput": "binary_crossentropy"},
+                           optimizer=sgd,
+                           metrics={"ouput": [metrics.binary_accuracy, metrics.binary_crossentropy]})
 
     def on_epoch_end(self, epoch, _):
-        # if(epoch < 72):
-        #     return
+        if(epoch < 72):
+            return
 
         # Function invoked at end of each epoch. Prints generated text.
         print()
         print('----- Generating text after Epoch: %d' % epoch)
 
         start_index = random.randint(0, len(self.X) - maxlen - 1)
-        for diversity in [0.2, 0.5, 1.0, 1.2]:
-            print('----- diversity:', diversity)
+        generated = ''
+        segment = self.X[start_index]
+        generated += one_hot_encoding_to_music_sequence(segment)
+        sys.stdout.write(generated + " | ")
 
-            generated = ''
-            segment = self.X[start_index]
-            generated += one_hot_encoding_to_music_sequence(segment)
-            sys.stdout.write(generated + " | ")
+        for i in range(64):
+            x_pred = np.array([segment])
 
-            for i in range(64):
-                x_pred = np.array([segment])
+            preds = self.model.predict(x_pred, verbose=0)[0]
+            preds_normalized = sample(preds)
 
-                preds = self.model.predict(x_pred, verbose=0)[0]
-                preds_normalized = sample(preds, diversity)
+            generated += ', ' + \
+                one_hot_encoding_to_music_sequence([preds_normalized])
 
-                generated += ', ' + \
-                    one_hot_encoding_to_music_sequence([preds_normalized])
+            segment = np.vstack(
+                (segment[1:segment.shape[0]], preds_normalized))
 
-                segment = np.vstack(
-                    (segment[1:segment.shape[0]], preds_normalized))
-
-                sys.stdout.write(
-                    one_hot_encoding_to_music_sequence([preds_normalized]) + ', ')
-                sys.stdout.flush()
-            print()
+            sys.stdout.write(
+                one_hot_encoding_to_music_sequence([preds_normalized]) + ', ')
+            sys.stdout.flush()
+        print()
 
     def train(self):
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end)
 
         self.model.fit(self.X, self.Y,
-                       batch_size=256,
-                       epochs=61,  # 240
+                       batch_size=128,
+                       epochs=254,
                        shuffle=False,
                        callbacks=[print_callback])
 
@@ -114,13 +112,11 @@ class NeuralNetwork:
 
         for index in range(total_slides_to_generate):
             prediction = self.model.predict(np.array([sequence]))[0]
-            next_index = sample(prediction, 0.2)
-            next_note_arr = np.zeros(
-                (constants.MIDI_NOTE_AND_SILENCE_COUNT))
-            next_note_arr[next_index] = 1
-            contuation.append(next_note_arr)
+            preds_normalized = sample(prediction)
+
+            contuation.append(preds_normalized)
 
             sequence = np.vstack(
-                (sequence[1:sequence.shape[0]], next_note_arr))
+                (sequence[1:sequence.shape[0]], preds_normalized))
 
         return np.array(contuation)
