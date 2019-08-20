@@ -112,12 +112,15 @@ class NeuralNetwork:
         print('min: %f, max: %f, mean: %f, total: %f' %
               (min_pred, max_pred, mean_pred, sum_pred))
 
+        top_ten = np.sort(preds)[-10:]
+        print('top ten: ', top_ten)
+
     def train(self):
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, self.Y,
                        batch_size=128,
-                       epochs=128,
+                       epochs=354,
                        shuffle=False,
                        callbacks=[print_callback])
 
