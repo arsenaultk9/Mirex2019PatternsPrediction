@@ -54,8 +54,8 @@ class NeuralNetwork:
         self.model = Sequential()
         self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
+        # self.model.add(Dropout(0.2))
         # self.model.add(LSTM(128))
-        # self.model.add(Dropout(0.5))
         self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
                              activation='sigmoid', name='ouput'))
 
@@ -65,7 +65,7 @@ class NeuralNetwork:
                            metrics={"ouput": [metrics.binary_accuracy, metrics.binary_crossentropy]})
 
     def on_epoch_end(self, epoch, _):
-        if(epoch < 72):
+        if(epoch < 45):
             return
 
         # Function invoked at end of each epoch. Prints generated text.
@@ -95,8 +95,25 @@ class NeuralNetwork:
             sys.stdout.flush()
         print()
 
+    def on_epoch_end_stats(self, epoch, _):
+        print()
+        print('----- Generating stats after Epoch: %d' % epoch)
+
+        start_index = random.randint(0, len(self.X) - maxlen - 1)
+        segment = self.X[start_index]
+
+        x_pred = np.array([segment])
+        preds = self.model.predict(x_pred, verbose=0)[0]
+        min_pred = preds.min()
+        max_pred = preds.max()
+        mean_pred = preds.mean()
+        sum_pred = preds.sum()
+
+        print('min: %f, max: %f, mean: %f, total: %f' %
+              (min_pred, max_pred, mean_pred, sum_pred))
+
     def train(self):
-        print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end)
+        print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, self.Y,
                        batch_size=128,
