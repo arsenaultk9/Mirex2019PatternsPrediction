@@ -55,13 +55,14 @@ class NeuralNetwork:
         self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
         # self.model.add(Dropout(0.2))
-        # self.model.add(LSTM(128))
+        # self.model.add(LSTM(32))
         self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
                              activation='sigmoid', name='ouput'))
 
-        sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        optimizer = RMSprop(lr=0.001)
+
         self.model.compile(loss={"ouput": "binary_crossentropy"},
-                           optimizer=sgd,
+                           optimizer=optimizer,
                            metrics={"ouput": [metrics.binary_accuracy, metrics.binary_crossentropy]})
 
     def on_epoch_end(self, epoch, _):
