@@ -121,7 +121,7 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=128,
-                       epochs=354,
+                       epochs=128,
                        shuffle=False,
                        callbacks=[print_callback])
 
