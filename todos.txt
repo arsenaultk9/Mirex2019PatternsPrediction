@@ -1,3 +1,5 @@
-1. Segment data into training and validation sets                                   ->
-2. Start window slide at begining instead of hole first window size                 ->
-3. Better manage data loading so at least 100 results can be loaded into memory     ->
+1. Vérifier la gestion des silences mode polyphonique si data bien préparé          -> «OK
+2. Segment data into training and validation sets                                   ->
+3. Start window slide at begining instead of hole first window size                 ->
+4. Better manage data loading so at least 100 results can be loaded into memory     ->
+5. Add rythmic corrector?                                                           -> 
