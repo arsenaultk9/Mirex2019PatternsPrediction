@@ -1,5 +1,6 @@
 1. Vérifier la gestion des silences mode polyphonique si data bien préparé          -> OK
-2. Start window slide at begining instead of hole first window size                 ->
+2. Start window slide at begining instead of hole first window size                 -> OK
+3. Correct continuation generation + csv file generation for no content             -> 
 3. Save model at end of training                                                    ->
 4. Bug generate notes csv when note ends at end of files                            ->
 5. Reduce note intervals to octave and concaconate values together                  -> 
