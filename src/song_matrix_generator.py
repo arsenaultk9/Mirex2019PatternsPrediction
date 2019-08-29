@@ -22,7 +22,7 @@ def generate_song_matrix(note_infos):
     song_length = int((max_beat_pos - min_beat_pos + 1)
                       * constants.SEGEMENTS_PER_BEAT)
     song_matrix = np.zeros(
-        (constants.MIDI_NOTE_AND_SILENCE_COUNT, song_length))
+        (constants.ALL_POSSIBLE_INPUTS_COUNT, song_length))
 
     # Not the most optimized way to do this but at least it's simple so easier to debug :)
     for song_beat_pos in range(song_length):
@@ -38,6 +38,6 @@ def generate_song_matrix(note_infos):
             has_note = True
 
         if not has_note:
-            song_matrix[0, song_beat_pos] = 1
+            song_matrix[constants.SILENCE_INDEX, song_beat_pos] = 1
 
     return min_beat_pos, max_beat_pos, np.swapaxes(song_matrix, 0, 1)

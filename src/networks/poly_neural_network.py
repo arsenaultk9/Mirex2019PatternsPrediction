@@ -56,7 +56,7 @@ class NeuralNetwork:
             X.shape[1], X.shape[2])))
         # self.model.add(Dropout(0.2))
         # self.model.add(LSTM(32))
-        self.model.add(Dense(constants.MIDI_NOTE_AND_SILENCE_COUNT,
+        self.model.add(Dense(constants.ALL_POSSIBLE_INPUTS_COUNT,
                              activation='sigmoid', name='ouput'))
 
         optimizer = RMSprop(lr=0.001)
@@ -120,8 +120,8 @@ class NeuralNetwork:
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, self.Y,
-                       batch_size=32,
-                       epochs=128,
+                       batch_size=64,
+                       epochs=256,
                        shuffle=False,
                        callbacks=[print_callback])
 

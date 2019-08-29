@@ -21,8 +21,8 @@ file_names = file_names[0:2]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
-              constants.MIDI_NOTE_AND_SILENCE_COUNT))
-Y = np.zeros((0, constants.MIDI_NOTE_AND_SILENCE_COUNT))
+              constants.ALL_POSSIBLE_INPUTS_COUNT))
+Y = np.zeros((0, constants.ALL_POSSIBLE_INPUTS_COUNT))
 
 print('===== Data setup start =====')
 for file_name in file_names:
@@ -52,6 +52,13 @@ network.train()
 
 print('===== Neural network training end =====')
 
-continuation = network.generate_continuation(cur_X[-1], 10)
-ig.sample_image('song_matrix_continuation', continuation)
-scg.generate_song_csv('test_continuation', continuation, max_beat_pos)
+print('===== Generation start =====')
+
+for continuation_index in range(18):
+    continuation = network.generate_continuation(cur_X[continuation_index], 16)
+    ig.sample_image('song_matrix_continuation_%d' %
+                    continuation_index, continuation)
+    scg.generate_song_csv('test_continuation_%d' %
+                          continuation_index, continuation, max_beat_pos)
+
+print('===== Generation end =====')
