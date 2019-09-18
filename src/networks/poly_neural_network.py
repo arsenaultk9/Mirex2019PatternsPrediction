@@ -52,10 +52,10 @@ class NeuralNetwork:
         self.Y = Y
 
         self.model = Sequential()
-        self.model.add(LSTM(128, return_sequences=False, input_shape=(
+        self.model.add(LSTM(128, return_sequences=True, input_shape=(
             X.shape[1], X.shape[2])))
         # self.model.add(Dropout(0.2))
-        # self.model.add(LSTM(32))
+        self.model.add(LSTM(32))
         self.model.add(Dense(constants.ALL_POSSIBLE_INPUTS_COUNT,
                              activation='sigmoid', name='ouput'))
 
