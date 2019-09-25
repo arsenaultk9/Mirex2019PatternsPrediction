@@ -9,5 +9,5 @@ NOTES_START_OFFSET = 2
 SILENCE_INDEX = 1
 EMPTY_SONG_DATA_INDEX = 0
 
-# Do about 8 measures of 4/4 for window slide.
-WINDOW_SLIDE_SIZE = SEGEMENTS_PER_BEAT * 4 * 8
+# Do about 4 measures of 4/4 for window slide.
+WINDOW_SLIDE_SIZE = SEGEMENTS_PER_BEAT * 4 * 2

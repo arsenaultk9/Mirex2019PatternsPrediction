@@ -17,7 +17,7 @@ file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf2
 file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = listdir(directory)  # [file_name_a, file_name_b]
-file_names = file_names[0:9]
+file_names = file_names[0:27]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
@@ -34,6 +34,10 @@ for file_name in file_names:
     note_infos = list(map(NoteInfo, file_data))
     min_beat_pos, max_beat_pos, song_matrix = smg.generate_song_matrix(
         note_infos)
+
+    if song_matrix.shape[0] < constants.WINDOW_SLIDE_SIZE:
+        continue
+
     cur_X, cur_Y = swsg.generate_window_slide(song_matrix)
 
     X = np.vstack((X, cur_X))

@@ -4,7 +4,7 @@
 3. Save model at end of training                                                    ->
 4. Bug generate notes csv when note ends at end of files                            ->
 5. Reduce note intervals to octave and concaconate values together                  -> 
-6. Bug polyphony load multiple files (at least 9)                                   ->
+6. Bug polyphony load multiple files (at least 9)                                   -> OK
 7. Segment data into training and validation sets                                   ->
 8. Better manage data loading so at least 100 results can be loaded into memory     ->
 9. Add rythmic corrector?                                                           -> 
