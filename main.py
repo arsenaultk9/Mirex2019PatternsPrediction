@@ -21,8 +21,8 @@ file_names = file_names[0:27]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
-              constants.ALL_POSSIBLE_INPUTS_COUNT))
-Y = np.zeros((0, constants.ALL_POSSIBLE_INPUTS_COUNT))
+              constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
+Y = np.zeros((0, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
 
 print('===== Data setup start =====')
 for file_name in file_names:

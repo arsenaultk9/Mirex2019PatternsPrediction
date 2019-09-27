@@ -22,7 +22,7 @@ def generate_song_matrix(note_infos):
     song_length = int((max_beat_pos - min_beat_pos + 1)
                       * constants.SEGEMENTS_PER_BEAT)
     song_matrix = np.zeros(
-        (constants.ALL_POSSIBLE_INPUTS_COUNT, song_length))
+        (constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED, song_length))
 
     # Not the most optimized way to do this but at least it's simple so easier to debug :)
     for song_beat_pos in range(song_length):
@@ -34,7 +34,14 @@ def generate_song_matrix(note_infos):
             if not note_info.is_on_at_beat(current_song_pos_quadrant):
                 continue
 
-            song_matrix[note_info.pitch + 1, song_beat_pos] = 1
+            if note_info.pitch < constants.BOTTOM_SKIPPING_INDEX:
+                continue
+
+            if note_info.pitch > constants.TOP_SKIPPING_INDEX:
+                continue
+
+            song_matrix[note_info.pitch + 1 -
+                        constants.BOTTOM_SKIPPING_INDEX, song_beat_pos] = 1
             has_note = True
 
         if not has_note:
