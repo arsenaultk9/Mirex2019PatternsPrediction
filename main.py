@@ -9,6 +9,7 @@ import src.constants as constants
 
 from src.models.note_info import NoteInfo
 from src.networks.poly_neural_network import NeuralNetwork
+from src.htm.htm_network import HtmNetwork
 
 directory_mono = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/'
 directory_poly = 'data/PPDD-Sep2018_sym_poly_small/prime_csv/'
@@ -17,12 +18,14 @@ file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf2
 file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = listdir(directory)  # [file_name_a, file_name_b]
-file_names = file_names[0:27]
+file_names = file_names[0:3]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
               constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
 Y = np.zeros((0, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
+
+song_matrix = None
 
 print('===== Data setup start =====')
 for file_name in file_names:
@@ -51,7 +54,10 @@ for file_name in file_names:
 print('===== Data setup end =====')
 print('===== Neural network training start =====')
 
-network = NeuralNetwork(X, Y)
+# network = NeuralNetwork(X, Y)
+# network.train()
+
+network = HtmNetwork(song_matrix)
 network.train()
 
 print('===== Neural network training end =====')
