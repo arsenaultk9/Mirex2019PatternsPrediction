@@ -27,7 +27,7 @@ def printStateTM(tm):
 
 class HtmNetwork:
     def __init__(self, song_matrix):
-        self.song_matrix = song_matrix[0:80]
+        self.song_matrix = song_matrix[0:20]
         self.song_slices = []
 
         for current_slice in self.song_matrix:
@@ -51,13 +51,14 @@ class HtmNetwork:
         self.tm.printParameters()
 
     def train(self):
-        for training_iteration in range(2):
+        for training_iteration in range(10):
             print('===================== training iteration {} =====================',
                   training_iteration)
             for song_slice in self.song_slices:
                 self.tm.compute(song_slice, learn=True)
                 printStateTM(self.tm)
 
+            self.tm.reset()
         return
 
     def generate_continuation(self, last_window_slide,
