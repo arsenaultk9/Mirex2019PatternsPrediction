@@ -4,12 +4,13 @@ from htm.algorithms import TemporalMemory as TM
 
 import src.constants as constants
 import src.note_parser as note_parser
+import src.htm.simple_scalar_encoder as sse
 
 
 def formatToNotes(sdr):
     s = ''
 
-    for activated in sdr.sparse:
+    for activated in sse.decode_to_note_number(sdr.sparse):
         s += note_parser.parse_number_to_note(activated) + ' '
 
     return s
@@ -27,21 +28,12 @@ def printStateTM(tm):
 
 class HtmNetwork:
     def __init__(self, song_matrix):
-        self.song_matrix = song_matrix[0:20]
+        self.song_matrix = song_matrix
         self.song_slices = []
 
-        for current_slice in self.song_matrix:
-            slice_with_buffer = np.zeros(
-                (constants.SDR_DIMENSION_LENGTH ** constants.SDR_DIMENSIONS))
-
-            slice_with_buffer[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = current_slice
-
-            slice_as_good_dimension = np.reshape(
-                slice_with_buffer, (constants.SDR_DIMENSION_LENGTH, constants.SDR_DIMENSION_LENGTH))
-            slice_sdr = SDR(dimensions=(
-                constants.SDR_DIMENSION_LENGTH, constants.SDR_DIMENSION_LENGTH))
-
-            slice_sdr.dense = slice_as_good_dimension.tolist()
+        # TODO: better sdr generation to not include duplicates of window slides.
+        for song_matrix_slice in song_matrix:
+            slice_sdr = sse.encode_to_sdr(song_matrix_slice)
             self.song_slices.append((slice_sdr))
 
         self.tm = TM(columnDimensions=(constants.SDR_DIMENSION_LENGTH, constants.SDR_DIMENSION_LENGTH),
@@ -51,10 +43,10 @@ class HtmNetwork:
         self.tm.printParameters()
 
     def train(self):
-        for training_iteration in range(10):
+        for training_iteration in range(3):
             print('===================== training iteration {} =====================',
                   training_iteration)
-            for song_slice in self.song_slices:
+            for song_slice in self.song_slices[0:20]:
                 self.tm.compute(song_slice, learn=True)
                 printStateTM(self.tm)
 
