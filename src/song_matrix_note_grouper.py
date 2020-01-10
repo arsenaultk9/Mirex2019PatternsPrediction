@@ -27,5 +27,6 @@ def group_note_clusters(song_matrix):
         current_cluster = np.zeros(constants.ALL_NOTE_INPUT_VERTOR_SIZE)
 
         last_song_slice = song_slice
+        current_cluster_size = 0
 
     return np.array(song_note_clusters)

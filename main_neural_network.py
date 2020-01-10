@@ -64,7 +64,7 @@ for continuation_index in range(18):
     continuation = X[position]
 
     continuation_unclustered = smnu.uncluster_song_notes(continuation)
-    ig.sample_image('song_matrix_continuation_%d_2' %
+    ig.sample_image('song_matrix_continuation_%d' %
                     continuation_index, continuation_unclustered)
 
 print('===== Generation end =====')
