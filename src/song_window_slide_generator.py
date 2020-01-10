@@ -8,7 +8,7 @@ def generate_window_slide(song_matrix_data):
 
     for current_start_slide in range(constants.WINDOW_SLIDE_SIZE):
         x_window_slide = np.zeros(
-            (constants.WINDOW_SLIDE_SIZE, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
+            (constants.WINDOW_SLIDE_SIZE, constants.ALL_NOTE_INPUT_VERTOR_SIZE))
 
         for current_x_pos in range(constants.WINDOW_SLIDE_SIZE - current_start_slide):
             x_window_slide[current_x_pos, constants.EMPTY_SONG_DATA_INDEX] = 1

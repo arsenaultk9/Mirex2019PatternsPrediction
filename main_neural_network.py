@@ -3,7 +3,10 @@ from os import listdir
 
 import src.image_generator as ig
 import src.song_matrix_generator as smg
+import src.song_matrix_note_grouper as smng
 import src.song_window_slide_generator as swsg
+import src.song_matrix_note_ungrouper as smnu
+
 import src.song_csv_generator as scg
 import src.constants as constants
 
@@ -22,8 +25,8 @@ file_names = file_names[0:3]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
-              constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
-Y = np.zeros((0, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED))
+              constants.ALL_NOTE_INPUT_VERTOR_SIZE))
+Y = np.zeros((0, constants.ALL_NOTE_INPUT_VERTOR_SIZE))
 
 song_matrix = None
 
@@ -38,10 +41,11 @@ for file_name in file_names:
     min_beat_pos, max_beat_pos, song_matrix = smg.generate_song_matrix(
         note_infos)
 
+    song_matrix_clusters = smng.group_note_clusters(song_matrix)
     if song_matrix.shape[0] < constants.WINDOW_SLIDE_SIZE:
         continue
 
-    cur_X, cur_Y = swsg.generate_window_slide(song_matrix)
+    cur_X, cur_Y = swsg.generate_window_slide(song_matrix_clusters)
 
     X = np.vstack((X, cur_X))
     Y = np.vstack((Y, cur_Y))
@@ -52,6 +56,20 @@ for file_name in file_names:
     file_index += 1
 
 print('===== Data setup end =====')
+
+print('===== Mock Generation start =====')
+
+for continuation_index in range(18):
+    position = continuation_index + constants.WINDOW_SLIDE_SIZE
+    continuation = X[position]
+
+    continuation_unclustered = smnu.uncluster_song_notes(continuation)
+    ig.sample_image('song_matrix_continuation_%d_2' %
+                    continuation_index, continuation_unclustered)
+
+print('===== Generation end =====')
+
+
 print('===== Neural network training start =====')
 
 network = NeuralNetwork(X, Y)
@@ -63,9 +81,11 @@ print('===== Generation start =====')
 
 for continuation_index in range(18):
     continuation = network.generate_continuation(cur_X[continuation_index], 16)
+    continuation_unclustered = smnu.uncluster_song_notes(continuation)
+
     ig.sample_image('song_matrix_continuation_%d' %
-                    continuation_index, continuation)
+                    continuation_index, continuation_unclustered)
     scg.generate_song_csv('test_continuation_%d' %
-                          continuation_index, continuation, max_beat_pos)
+                          continuation_index, continuation_unclustered, max_beat_pos)
 
 print('===== Generation end =====')

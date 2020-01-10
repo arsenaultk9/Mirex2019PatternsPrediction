@@ -56,7 +56,7 @@ class NeuralNetwork:
             X.shape[1], X.shape[2])))
         # self.model.add(Dropout(0.2))
         self.model.add(LSTM(32))
-        self.model.add(Dense(constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED,
+        self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
                              activation='sigmoid', name='ouput'))
 
         optimizer = RMSprop(lr=0.001)
