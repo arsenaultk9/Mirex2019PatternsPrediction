@@ -70,7 +70,7 @@ class NeuralNetwork:
         # self.model.add(Dropout(0.2))
         self.model.add(LSTM(32, return_sequences=True))
         self.model.add(LSTM(32, return_sequences=True))
-        self.model.add(LSTM(32, return_sequences=True))
+        self.model.add(LSTM(32))
 
         self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
                              activation='sigmoid', name='ouput'))
