@@ -36,8 +36,21 @@ def sample(preds):
 
     # helper function to sample an index from a probability array
     preds = np.asarray(preds).astype('float64')
-    preds[preds >= 0.5] = 1
     preds[preds < 0.5] = 0
+
+    # Limit maximum note on to 7.
+    topPredidctions = []
+    for pred in preds:
+        if pred >= 0.5:
+            topPredidctions.append(pred)
+
+    topPredidctions.sort(reverse=True)
+    topPredidctions = topPredidctions[0:7]
+
+    for topPred in topPredidctions:
+        preds[preds == topPred] = 1
+
+    preds[preds != 1] = 0
 
     # in case nothing is to predict, predict silence.
     if(len(preds[preds >= 0.5]) == 0):
@@ -55,7 +68,10 @@ class NeuralNetwork:
         self.model.add(LSTM(128, return_sequences=True, input_shape=(
             X.shape[1], X.shape[2])))
         # self.model.add(Dropout(0.2))
-        self.model.add(LSTM(32))
+        self.model.add(LSTM(32, return_sequences=True))
+        self.model.add(LSTM(32, return_sequences=True))
+        self.model.add(LSTM(32, return_sequences=True))
+
         self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
                              activation='sigmoid', name='ouput'))
 
@@ -121,7 +137,7 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=64,
-                       epochs=256,
+                       epochs=1024,
                        shuffle=False,
                        callbacks=[print_callback])
 
