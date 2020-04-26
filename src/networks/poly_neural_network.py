@@ -36,25 +36,36 @@ def sample(preds):
 
     # helper function to sample an index from a probability array
     preds = np.asarray(preds).astype('float64')
-    preds[preds < 0.5] = 0
+    preds_withoutsegments = preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED]
+    segments = preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
+                     constants.ALL_NOTE_INPUT_VERTOR_SIZE]
+    preds_withoutsegments[preds_withoutsegments < 0.5] = 0
 
     # Limit maximum note on to 7.
     topPredidctions = []
-    for pred in preds:
+    for pred in preds_withoutsegments:
         if pred >= 0.5:
             topPredidctions.append(pred)
 
     topPredidctions.sort(reverse=True)
-    topPredidctions = topPredidctions[0:7]
+    topPredidctions = topPredidctions[0:6]
 
     for topPred in topPredidctions:
-        preds[preds == topPred] = 1
+        preds_withoutsegments[preds_withoutsegments == topPred] = 1
 
-    preds[preds != 1] = 0
+    preds_withoutsegments[preds_withoutsegments != 1] = 0
 
     # in case nothing is to predict, predict silence.
-    if(len(preds[preds >= 0.5]) == 0):
+    if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
         preds[0] = 1
+
+    # region notes and segments
+    segments[segments < 0.5] = 0
+    segments[segments >= 0.5] = 1
+
+    preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
+    preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
+          constants.ALL_NOTE_INPUT_VERTOR_SIZE] = segments
 
     return preds
 
