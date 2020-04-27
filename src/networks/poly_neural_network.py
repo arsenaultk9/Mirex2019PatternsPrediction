@@ -60,8 +60,12 @@ def sample(preds):
         preds[0] = 1
 
     # region notes and segments
-    segments[segments < 0.5] = 0
-    segments[segments >= 0.5] = 1
+    top_segment = 0
+    for segment in segments:
+        top_segment = top_segment if top_segment >= segment else segment
+
+    segments[segments == top_segment] = 1
+    segments[segments != 1] = 0
 
     preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
     preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
@@ -147,8 +151,8 @@ class NeuralNetwork:
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, self.Y,
-                       batch_size=64,
-                       epochs=1024,
+                       batch_size=32,
+                       epochs=2052,
                        shuffle=False,
                        callbacks=[print_callback])
 
