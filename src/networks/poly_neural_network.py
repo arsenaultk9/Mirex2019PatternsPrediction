@@ -151,7 +151,7 @@ class NeuralNetwork:
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, self.Y,
-                       batch_size=32,
+                       batch_size=16,
                        epochs=2052,
                        shuffle=False,
                        callbacks=[print_callback])
