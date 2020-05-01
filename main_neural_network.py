@@ -20,7 +20,7 @@ file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf2
 file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = listdir(directory)  # [file_name_a, file_name_b]
-file_names = file_names[0:54]
+file_names = file_names[0:1]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
@@ -55,18 +55,6 @@ for file_name in file_names:
     file_index += 1
 
 print('===== Data setup end =====')
-
-print('===== Mock Generation start =====')
-
-for continuation_index in range(18):
-    position = continuation_index + constants.WINDOW_SLIDE_SIZE
-    continuation = X[position]
-
-    continuation_unclustered = smnu.uncluster_song_notes(continuation)
-    ig.sample_image('song_matrix_continuation_%d' %
-                    continuation_index, continuation_unclustered)
-
-print('===== Generation end =====')
 
 
 print('===== Neural network training start =====')
