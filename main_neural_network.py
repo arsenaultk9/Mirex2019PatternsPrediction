@@ -66,7 +66,7 @@ print('===== Neural network training end =====')
 
 print('===== Generation start =====')
 
-for continuation_index in range(18):
+for continuation_index in range(180):
     continuation = network.generate_continuation(cur_X[continuation_index], 32)
     continuation_unclustered = smnu.uncluster_song_notes(continuation)
 

@@ -140,9 +140,10 @@ class NeuralNetwork:
         max_pred = preds.max()
         mean_pred = preds.mean()
         sum_pred = preds.sum()
+        total_on = np.size(preds[preds >= 0.5])
 
-        print('min: %f, max: %f, mean: %f, total: %f' %
-              (min_pred, max_pred, mean_pred, sum_pred))
+        print('min: %f, max: %f, mean: %f, total: %f, total_on(>=0.5): %f' %
+              (min_pred, max_pred, mean_pred, sum_pred, total_on))
 
         top_ten = np.sort(preds)[-10:]
         print('top ten: ', top_ten)
@@ -152,8 +153,8 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=16,
-                       epochs=2048,
-                       shuffle=False,
+                       epochs=256,
+                       shuffle=True,
                        callbacks=[print_callback])
 
     def generate_continuation(self, last_window_slide,
