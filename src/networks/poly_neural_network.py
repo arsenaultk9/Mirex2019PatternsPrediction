@@ -39,6 +39,12 @@ def sample(preds):
     preds_withoutsegments = preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED]
     segments = preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
                      constants.ALL_NOTE_INPUT_VERTOR_SIZE]
+
+    # If no segment activated take maximum one and activate if
+    if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
+        preds_withoutsegments[preds_withoutsegments ==
+                              np.max(preds_withoutsegments)] = 0.5
+
     preds_withoutsegments[preds_withoutsegments < 0.5] = 0
 
     # Limit maximum note on to 7.
@@ -81,11 +87,10 @@ class NeuralNetwork:
 
         self.model = Sequential()
         self.model.add(LSTM(128, return_sequences=True, input_shape=(
-            X.shape[1], X.shape[2])))
+            X.shape[1], X.shape[2]), activation='elu'))
         # self.model.add(Dropout(0.2))
-        self.model.add(LSTM(64, return_sequences=True))
-        self.model.add(LSTM(64, return_sequences=True))
-        self.model.add(LSTM(64))
+        self.model.add(LSTM(64, return_sequences=True, activation='elu'))
+        self.model.add(LSTM(64, activation='elu'))
 
         self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
                              activation='sigmoid', name='ouput'))
@@ -153,7 +158,7 @@ class NeuralNetwork:
 
         self.model.fit(self.X, self.Y,
                        batch_size=16,
-                       epochs=256,
+                       epochs=254,
                        shuffle=True,
                        callbacks=[print_callback])
 

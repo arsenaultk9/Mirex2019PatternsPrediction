@@ -20,7 +20,7 @@ file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf2
 file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = listdir(directory)  # [file_name_a, file_name_b]
-file_names = file_names[0:54]
+file_names = file_names[0:72]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
@@ -49,8 +49,8 @@ for file_name in file_names:
     X = np.vstack((X, cur_X))
     Y = np.vstack((Y, cur_Y))
 
-    ig.sample_image('song_matrix_%d' % file_index, song_matrix)
-    scg.generate_song_csv('test_%d' % file_index, song_matrix, min_beat_pos)
+    # ig.sample_image('song_matrix_%d' % file_index, song_matrix)
+    # scg.generate_song_csv('test_%d' % file_index, song_matrix, min_beat_pos)
 
     file_index += 1
 
