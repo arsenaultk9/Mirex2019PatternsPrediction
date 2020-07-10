@@ -13,6 +13,7 @@ from keras import metrics
 
 import src.constants as constants
 import src.note_parser as note_parser
+from keras.layers.core import RepeatVector
 
 maxlen = 31
 
@@ -86,11 +87,14 @@ class NeuralNetwork:
         self.Y = Y
 
         self.model = Sequential()
-        self.model.add(LSTM(128, return_sequences=True, input_shape=(
+
+        # LSTM Encoder for dimensionality reduction of input space and simplification/generalisation of data
+        self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2]), activation='elu'))
-        # self.model.add(Dropout(0.2))
-        self.model.add(LSTM(64, return_sequences=True, activation='elu'))
-        self.model.add(LSTM(64, activation='elu'))
+        self.model.add(RepeatVector(X.shape[1]))
+
+        # LSTM Used for decoding encoded data and beeing able to predict with notes are on.
+        self.model.add(LSTM(64, return_sequences=False, activation='elu'))
 
         self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
                              activation='sigmoid', name='ouput'))
