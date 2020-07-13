@@ -18,15 +18,17 @@ def generate_window_slide(song_matrix_data):
             current_start_slide: constants.WINDOW_SLIDE_SIZE - start_data]
 
         X.append(x_window_slide)
-        Y.append(song_matrix_data[current_start_slide + 1])
+        Y.append(song_matrix_data[current_start_slide +
+                                  1: current_start_slide + constants.PREDICTION_SIZE + 1])
 
     remaining_slides = song_matrix_data.shape[0] - constants.WINDOW_SLIDE_SIZE
 
-    for current_slide in range(remaining_slides - 1):
+    for current_slide in range(remaining_slides - constants.PREDICTION_SIZE):
         X.append(
             song_matrix_data[current_slide:current_slide+constants.WINDOW_SLIDE_SIZE])
 
         Y.append(song_matrix_data[current_slide +
-                                  constants.WINDOW_SLIDE_SIZE+1])
+                                  constants.WINDOW_SLIDE_SIZE+1: current_slide +
+                                  constants.WINDOW_SLIDE_SIZE+1 + constants.PREDICTION_SIZE])
 
     return np.array(X), np.array(Y)

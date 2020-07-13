@@ -14,6 +14,7 @@ from keras import metrics
 import src.constants as constants
 import src.note_parser as note_parser
 from keras.layers.core import RepeatVector
+from keras.layers.wrappers import TimeDistributed
 
 maxlen = 31
 
@@ -36,49 +37,51 @@ def sample(preds):
     predict_from_threshold = np.zeros(preds.shape)
 
     # helper function to sample an index from a probability array
-    preds = np.asarray(preds).astype('float64')
-    preds_withoutsegments = preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED]
-    segments = preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
-                     constants.ALL_NOTE_INPUT_VERTOR_SIZE]
+    all_preds = np.asarray(preds).astype('float64')
 
-    # If no segment activated take maximum one and activate if
-    if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
-        preds_withoutsegments[preds_withoutsegments ==
-                              np.max(preds_withoutsegments)] = 0.5
+    for preds in all_preds:
+        preds_withoutsegments = preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED]
+        segments = preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
+                         constants.ALL_NOTE_INPUT_VERTOR_SIZE]
 
-    preds_withoutsegments[preds_withoutsegments < 0.5] = 0
+        # If no segment activated take maximum one and activate if
+        if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
+            preds_withoutsegments[preds_withoutsegments ==
+                                  np.max(preds_withoutsegments)] = 0.5
 
-    # Limit maximum note on to 7.
-    topPredidctions = []
-    for pred in preds_withoutsegments:
-        if pred >= 0.5:
-            topPredidctions.append(pred)
+        preds_withoutsegments[preds_withoutsegments < 0.5] = 0
 
-    topPredidctions.sort(reverse=True)
-    topPredidctions = topPredidctions[0:6]
+        # Limit maximum note on to 7.
+        topPredidctions = []
+        for pred in preds_withoutsegments:
+            if pred >= 0.5:
+                topPredidctions.append(pred)
 
-    for topPred in topPredidctions:
-        preds_withoutsegments[preds_withoutsegments == topPred] = 1
+        topPredidctions.sort(reverse=True)
+        topPredidctions = topPredidctions[0:6]
 
-    preds_withoutsegments[preds_withoutsegments != 1] = 0
+        for topPred in topPredidctions:
+            preds_withoutsegments[preds_withoutsegments == topPred] = 1
 
-    # in case nothing is to predict, predict silence.
-    if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
-        preds[0] = 1
+        preds_withoutsegments[preds_withoutsegments != 1] = 0
 
-    # region notes and segments
-    top_segment = 0
-    for segment in segments:
-        top_segment = top_segment if top_segment >= segment else segment
+        # in case nothing is to predict, predict silence.
+        if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
+            preds[0] = 1
 
-    segments[segments == top_segment] = 1
-    segments[segments != 1] = 0
+        # region notes and segments
+        top_segment = 0
+        for segment in segments:
+            top_segment = top_segment if top_segment >= segment else segment
 
-    preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
-    preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
-          constants.ALL_NOTE_INPUT_VERTOR_SIZE] = segments
+        segments[segments == top_segment] = 1
+        segments[segments != 1] = 0
 
-    return preds
+        preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
+        preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
+              constants.ALL_NOTE_INPUT_VERTOR_SIZE] = segments
+
+    return all_preds
 
 
 class NeuralNetwork:
@@ -92,17 +95,19 @@ class NeuralNetwork:
         self.model.add(LSTM(128, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
 
-        # Dense layer to keep neural network deeper.
-        self.model.add(Dense(128, activation='elu'))
+        # Second lstm to decode encoded/dimensionality reduced layer
+        self.model.add(RepeatVector(constants.PREDICTION_SIZE))
+        self.model.add(LSTM(128, return_sequences=True))
 
-        self.model.add(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
-                             activation='sigmoid', name='ouput'))
+        # Repeat outputs of lstm so each output can pass by a softmax layer to predict on inputs at time step.
+        self.model.add(TimeDistributed(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
+                                             activation='sigmoid', name='ouput')))
 
         optimizer = RMSprop(lr=0.001)
 
-        self.model.compile(loss={"ouput": "binary_crossentropy"},
+        self.model.compile(loss="binary_crossentropy",
                            optimizer=optimizer,
-                           metrics={"ouput": [metrics.binary_accuracy, metrics.binary_crossentropy]})
+                           metrics=[metrics.binary_accuracy, metrics.binary_crossentropy])
 
     def on_epoch_end(self, epoch, _):
         if(epoch < 45):
@@ -148,13 +153,18 @@ class NeuralNetwork:
         max_pred = preds.max()
         mean_pred = preds.mean()
         sum_pred = preds.sum()
-        total_on = np.size(preds[preds >= 0.5])
 
-        print('min: %f, max: %f, mean: %f, total: %f, total_on(>=0.5): %f' %
-              (min_pred, max_pred, mean_pred, sum_pred, total_on))
+        print('min: %f, max: %f, mean: %f, total: %f' %
+              (min_pred, max_pred, mean_pred, sum_pred))
 
-        top_ten = np.sort(preds)[-10:]
-        print('top ten: ', top_ten)
+        total_on_per_position = []
+
+        for preds_at_pos in preds:
+            preds_at_pos_count = np.size(preds_at_pos[preds_at_pos >= 0.5])
+            total_on_per_position.append(preds_at_pos_count)
+
+        total_on_per_position_text = ', '.join(map(str, total_on_per_position))
+        print('total on by position: {}'.format(total_on_per_position_text))
 
     def train(self):
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
@@ -177,9 +187,10 @@ class NeuralNetwork:
             prediction = self.model.predict(np.array([sequence]))[0]
             preds_normalized = sample(prediction)
 
-            contuation.append(preds_normalized)
-
-            sequence = np.vstack(
-                (sequence[1:sequence.shape[0]], preds_normalized))
+            # Append following predictions while removing first item for each prediction.
+            for cur_preds_normalized in preds_normalized:
+                contuation.append(cur_preds_normalized)
+                sequence = np.vstack(
+                    (sequence[1:sequence.shape[0]], cur_preds_normalized))
 
         return np.array(contuation)

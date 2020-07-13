@@ -25,7 +25,8 @@ file_names = file_names[0:99]
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,
               constants.ALL_NOTE_INPUT_VERTOR_SIZE))
-Y = np.zeros((0, constants.ALL_NOTE_INPUT_VERTOR_SIZE))
+Y = np.zeros((0, constants.PREDICTION_SIZE,
+              constants.ALL_NOTE_INPUT_VERTOR_SIZE))
 
 song_matrix = None
 
@@ -48,9 +49,6 @@ for file_name in file_names:
 
     X = np.vstack((X, cur_X))
     Y = np.vstack((Y, cur_Y))
-
-    # ig.sample_image('song_matrix_%d' % file_index, song_matrix)
-    # scg.generate_song_csv('test_%d' % file_index, song_matrix, min_beat_pos)
 
     file_index += 1
 
