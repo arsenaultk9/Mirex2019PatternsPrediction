@@ -14,7 +14,8 @@ def generate_window_slide(song_matrix_data):
             x_window_slide[current_x_pos, constants.EMPTY_SONG_DATA_INDEX] = 1
 
         start_data = constants.WINDOW_SLIDE_SIZE - current_start_slide - 1
-        x_window_slide[start_data: constants.WINDOW_SLIDE_SIZE] = song_matrix_data[start_data: constants.WINDOW_SLIDE_SIZE]
+        x_window_slide[start_data: constants.WINDOW_SLIDE_SIZE] = song_matrix_data[
+            current_start_slide: constants.WINDOW_SLIDE_SIZE - start_data]
 
         X.append(x_window_slide)
         Y.append(song_matrix_data[current_start_slide + 1])
