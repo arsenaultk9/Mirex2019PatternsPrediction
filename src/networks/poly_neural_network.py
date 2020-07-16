@@ -92,11 +92,12 @@ class NeuralNetwork:
         self.model = Sequential()
 
         # LSTM Encoder for dimensionality reduction of input space and simplification/generalisation of data
-        self.model.add(LSTM(128, return_sequences=False, input_shape=(
+        self.model.add(LSTM(512, return_sequences=False, input_shape=(
             X.shape[1], X.shape[2])))
 
         # Second lstm to decode encoded/dimensionality reduced layer
         self.model.add(RepeatVector(constants.PREDICTION_SIZE))
+        self.model.add(LSTM(128, return_sequences=True))
         self.model.add(LSTM(128, return_sequences=True))
 
         # Repeat outputs of lstm so each output can pass by a softmax layer to predict on inputs at time step.
@@ -108,37 +109,6 @@ class NeuralNetwork:
         self.model.compile(loss="binary_crossentropy",
                            optimizer=optimizer,
                            metrics=[metrics.binary_accuracy, metrics.binary_crossentropy])
-
-    def on_epoch_end(self, epoch, _):
-        if(epoch < 45):
-            return
-
-        # Function invoked at end of each epoch. Prints generated text.
-        print()
-        print('----- Generating text after Epoch: %d' % epoch)
-
-        start_index = random.randint(0, len(self.X) - maxlen - 1)
-        generated = ''
-        segment = self.X[start_index]
-        generated += one_hot_encoding_to_music_sequence(segment)
-        sys.stdout.write(generated + " | ")
-
-        for i in range(64):
-            x_pred = np.array([segment])
-
-            preds = self.model.predict(x_pred, verbose=0)[0]
-            preds_normalized = sample(preds)
-
-            generated += ', ' + \
-                one_hot_encoding_to_music_sequence([preds_normalized])
-
-            segment = np.vstack(
-                (segment[1:segment.shape[0]], preds_normalized))
-
-            sys.stdout.write(
-                one_hot_encoding_to_music_sequence([preds_normalized]) + ', ')
-            sys.stdout.flush()
-        print()
 
     def on_epoch_end_stats(self, epoch, _):
         print()
