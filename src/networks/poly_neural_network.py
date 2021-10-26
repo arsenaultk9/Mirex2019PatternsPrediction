@@ -2,19 +2,19 @@ import sys
 import numpy as np
 import random
 
-from keras.callbacks import LambdaCallback
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
-from keras.optimizers import RMSprop
-from keras.optimizers import SGD
-from keras import metrics
+from tensorflow.keras.callbacks import LambdaCallback
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras import metrics
 
 import src.constants as constants
 import src.note_parser as note_parser
-from keras.layers.core import RepeatVector
-from keras.layers.wrappers import TimeDistributed
+from tensorflow.keras.layers import RepeatVector
+from tensorflow.keras.layers import TimeDistributed
 
 maxlen = 31
 
