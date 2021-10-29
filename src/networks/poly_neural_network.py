@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from datetime import datetime
 
 from tensorflow.keras.callbacks import LambdaCallback
 from tensorflow.keras.models import Sequential
@@ -10,10 +11,14 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras import metrics
 from tensorflow.keras.models import Model
-
-import src.constants as constants
 from tensorflow.keras.layers import RepeatVector
 from tensorflow.keras.layers import TimeDistributed
+from keras.callbacks import TensorBoard
+
+import src.constants as constants
+
+logdir = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = TensorBoard(log_dir=logdir)
 
 maxlen = 31
 
@@ -89,13 +94,14 @@ class NeuralNetwork:
         # Second lstm to decode encoded/dimensionality reduced layer
         repeat_decoder_layer = RepeatVector(constants.PREDICTION_SIZE)(start_encoder_layer)
         second_lstm_layer = LSTM(128, return_sequences=True)(repeat_decoder_layer)
+        third_lstm_layer = LSTM(128, return_sequences=True)(second_lstm_layer)
 
         # Repeat outputs of lstm so each output can pass by a softmax layer to predict on inputs at time step.
         notes_output_layer = TimeDistributed(Dense(constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED,
-                                             activation='sigmoid', name='notes_output'))(second_lstm_layer)
+                                             activation='sigmoid', name='notes_output'))(third_lstm_layer)
 
         lengths_output_layer = TimeDistributed(Dense(constants.SEGMENTS_PER_BEAT,
-                                             activation='sigmoid', name='length_output'))(second_lstm_layer)
+                                             activation='sigmoid', name='length_output'))(third_lstm_layer)
 
         self.model = Model(input_layer, [notes_output_layer, lengths_output_layer])
         
@@ -139,7 +145,7 @@ class NeuralNetwork:
                        batch_size=16,
                        epochs=256,
                        shuffle=True,
-                       callbacks=[print_callback])
+                       callbacks=[print_callback, tensorboard_callback])
 
     def generate_continuation(self, last_window_slide,
                               quarter_beats_to_generate):
