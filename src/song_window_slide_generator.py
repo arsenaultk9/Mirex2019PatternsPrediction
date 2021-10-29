@@ -8,7 +8,7 @@ def generate_window_slide(song_matrix_data):
 
     for current_start_slide in range(constants.WINDOW_SLIDE_SIZE):
         x_window_slide = np.zeros(
-            (constants.WINDOW_SLIDE_SIZE, constants.ALL_NOTE_INPUT_VERTOR_SIZE))
+            (constants.WINDOW_SLIDE_SIZE, constants.ALL_NOTE_INPUT_VECTOR_SIZE))
 
         for current_x_pos in range(constants.WINDOW_SLIDE_SIZE - current_start_slide):
             x_window_slide[current_x_pos, constants.EMPTY_SONG_DATA_INDEX] = 1
@@ -31,4 +31,8 @@ def generate_window_slide(song_matrix_data):
                                   constants.WINDOW_SLIDE_SIZE+1: current_slide +
                                   constants.WINDOW_SLIDE_SIZE+1 + constants.PREDICTION_SIZE])
 
-    return np.array(X), np.array(Y)
+    Y = np.array(Y)
+    Y_NOTES = np.array(Y[:, :, 0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED])
+    Y_LENGTHS = np.array(Y[:, :, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED: constants.ALL_NOTE_INPUT_VECTOR_SIZE])
+    
+    return np.array(X), Y_NOTES, Y_LENGTHS

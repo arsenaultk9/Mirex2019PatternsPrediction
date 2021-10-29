@@ -102,7 +102,7 @@ class NeuralNetwork:
     def generate_continuation(self, last_window_slide,
                               quarter_beats_to_generate):
 
-        total_slides_to_generate = quarter_beats_to_generate * constants.SEGEMENTS_PER_BEAT
+        total_slides_to_generate = quarter_beats_to_generate * constants.SEGMENTS_PER_BEAT
         contuation = []
 
         sequence = last_window_slide

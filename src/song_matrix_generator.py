@@ -20,14 +20,14 @@ def generate_song_matrix(note_infos):
             max_beat_pos = note_end
 
     song_length = int((max_beat_pos - min_beat_pos + 1)
-                      * constants.SEGEMENTS_PER_BEAT)
+                      * constants.SEGMENTS_PER_BEAT)
     song_matrix = np.zeros(
         (constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED, song_length))
 
     # Not the most optimized way to do this but at least it's simple so easier to debug :)
     for song_beat_pos in range(song_length):
         current_song_pos_quadrant = min_beat_pos + \
-            song_beat_pos / constants.SEGEMENTS_PER_BEAT
+            song_beat_pos / constants.SEGMENTS_PER_BEAT
 
         has_note = False
         for note_info in note_infos:

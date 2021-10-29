@@ -21,7 +21,7 @@ class NoteInfo:
             return False
 
         inclusive_end = self.starting_beat + \
-            self.length - (1/constants.SEGEMENTS_PER_BEAT) + \
+            self.length - (1/constants.SEGMENTS_PER_BEAT) + \
             constants.BEAT_SEGMENT_ACCEPTED_ROUNDING_ERROR
 
         if(beat > inclusive_end):

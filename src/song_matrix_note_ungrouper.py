@@ -6,7 +6,7 @@ def get_length_of_cluster(clustered_song_note):
     cluster_size = 1
 
     for cluster_pointer in clustered_song_note[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
-                                               constants.ALL_NOTE_INPUT_VERTOR_SIZE]:
+                                               constants.ALL_NOTE_INPUT_VECTOR_SIZE]:
         if cluster_pointer == 1:
             return cluster_size
 

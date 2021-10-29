@@ -32,7 +32,7 @@ def generate_song_csv(file_name, song_matrix, start_point):
             if song_matrix[current_pos_in_quadrant, note_index] == 0 and \
                     started:
 
-                ended_pos = current_pos_in_quadrant / constants.SEGEMENTS_PER_BEAT + start_point
+                ended_pos = current_pos_in_quadrant / constants.SEGMENTS_PER_BEAT + start_point
                 note = np.array([started_pos,
                                  int(note_index - 1),
                                  int(note_index - 1),
@@ -46,7 +46,7 @@ def generate_song_csv(file_name, song_matrix, start_point):
             if song_matrix[current_pos_in_quadrant, note_index] == 1 and \
                     not started:
                 started_pos = current_pos_in_quadrant / \
-                    constants.SEGEMENTS_PER_BEAT + start_point
+                    constants.SEGMENTS_PER_BEAT + start_point
                 started = True
 
     if(len(notes) > 0):
