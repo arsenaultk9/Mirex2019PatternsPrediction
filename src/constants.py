@@ -17,7 +17,7 @@ SILENCE_INDEX = 1
 EMPTY_SONG_DATA_INDEX = 0
 
 # Do about 4 measures of 4/4 for window slide.
-WINDOW_SLIDE_SIZE = 32
+WINDOW_SLIDE_SIZE = 8
 
 PREDICTION_SIZE = 4
 
