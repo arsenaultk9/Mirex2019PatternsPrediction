@@ -33,9 +33,11 @@ Y_LENGTHS = np.zeros((0, constants.PREDICTION_SIZE,
 song_matrix = None
 
 print('===== Data setup start =====')
-for file_name in file_names:
+for index, file_name in enumerate(file_names):
     if(file_name.find(".csv") == -1):
         continue
+
+    print("Data setup file number {} of {}".format(index, len(file_names)))
 
     file_data = np.loadtxt(directory + file_name, delimiter=",")
 

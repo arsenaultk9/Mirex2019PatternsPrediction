@@ -94,14 +94,13 @@ class NeuralNetwork:
         # Second lstm to decode encoded/dimensionality reduced layer
         repeat_decoder_layer = RepeatVector(constants.PREDICTION_SIZE)(start_encoder_layer)
         second_lstm_layer = LSTM(128, return_sequences=True)(repeat_decoder_layer)
-        third_lstm_layer = LSTM(128, return_sequences=True)(second_lstm_layer)
 
         # Repeat outputs of lstm so each output can pass by a softmax layer to predict on inputs at time step.
         notes_output_layer = TimeDistributed(Dense(constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED,
-                                             activation='sigmoid', name='notes_output'))(third_lstm_layer)
+                                             activation='sigmoid', name='notes_output'))(second_lstm_layer)
 
         lengths_output_layer = TimeDistributed(Dense(constants.SEGMENTS_PER_BEAT,
-                                             activation='sigmoid', name='length_output'))(third_lstm_layer)
+                                             activation='sigmoid', name='length_output'))(second_lstm_layer)
 
         self.model = Model(input_layer, [notes_output_layer, lengths_output_layer])
         
@@ -145,6 +144,7 @@ class NeuralNetwork:
                        batch_size=64,
                        epochs=256,
                        shuffle=True,
+                       validation_split= 0.2,
                        callbacks=[print_callback, tensorboard_callback])
 
     def generate_continuation(self, last_window_slide,
