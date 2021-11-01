@@ -10,10 +10,10 @@ def group_note_clusters(song_matrix):
     # In order to not segment first slice from rest
     last_song_slice = song_matrix[0]
 
-    current_cluster = np.zeros(constants.ALL_NOTE_INPUT_VERTOR_SIZE)
+    current_cluster = np.zeros(constants.ALL_NOTE_INPUT_VECTOR_SIZE)
     for song_slice in song_matrix:
         if(np.array_equal(last_song_slice, song_slice) and
-                current_cluster_size + 1 < constants.SEGEMENTS_PER_BEAT):
+                current_cluster_size + 1 < constants.SEGMENTS_PER_BEAT):
 
             current_cluster_size += 1
             last_song_slice = song_slice
@@ -24,7 +24,7 @@ def group_note_clusters(song_matrix):
                         current_cluster_size] = 1
 
         song_note_clusters.append(current_cluster)
-        current_cluster = np.zeros(constants.ALL_NOTE_INPUT_VERTOR_SIZE)
+        current_cluster = np.zeros(constants.ALL_NOTE_INPUT_VECTOR_SIZE)
 
         last_song_slice = song_slice
         current_cluster_size = 0

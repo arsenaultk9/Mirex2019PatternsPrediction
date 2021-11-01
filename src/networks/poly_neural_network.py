@@ -1,48 +1,37 @@
-import sys
 import numpy as np
 import random
+from datetime import datetime
 
 from tensorflow.keras.callbacks import LambdaCallback
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Input
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.optimizers import SGD
 from tensorflow.keras import metrics
-
-import src.constants as constants
-import src.note_parser as note_parser
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import RepeatVector
 from tensorflow.keras.layers import TimeDistributed
+from keras.callbacks import TensorBoard
+
+import src.constants as constants
+
+logdir = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = TensorBoard(log_dir=logdir)
 
 maxlen = 31
 
 
-def one_hot_encoding_to_music_sequence(segment):
-    text = ''
+# helper function to sample an index from a probability array
+def sample(nn_preds):
+    preds_adjusted = np.zeros((constants.PREDICTION_SIZE,
+              constants.ALL_NOTE_INPUT_VECTOR_SIZE))
 
-    for row in segment:
-        text += '('
-        for index in range(len(row)):
-            if(row[index] == 1):
-                text += note_parser.parse_number_to_note(index) + ' '
+    notes_preds = np.asarray(nn_preds[0]).astype('float64')
 
-        text += ')'
-
-    return text
-
-
-def sample(preds):
-    predict_from_threshold = np.zeros(preds.shape)
-
-    # helper function to sample an index from a probability array
-    all_preds = np.asarray(preds).astype('float64')
-
-    for preds in all_preds:
-        preds_withoutsegments = preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED]
-        segments = preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
-                         constants.ALL_NOTE_INPUT_VERTOR_SIZE]
+    for index, preds in enumerate(notes_preds[0]):
+        preds_withoutsegments = preds
 
         # If no segment activated take maximum one and activate if
         if(len(preds_withoutsegments[preds_withoutsegments >= 0.5]) == 0):
@@ -52,15 +41,15 @@ def sample(preds):
         preds_withoutsegments[preds_withoutsegments < 0.5] = 0
 
         # Limit maximum note on to 7.
-        topPredidctions = []
+        topPredictions = []
         for pred in preds_withoutsegments:
             if pred >= 0.5:
-                topPredidctions.append(pred)
+                topPredictions.append(pred)
 
-        topPredidctions.sort(reverse=True)
-        topPredidctions = topPredidctions[0:6]
+        topPredictions.sort(reverse=True)
+        topPredictions = topPredictions[0:6]
 
-        for topPred in topPredidctions:
+        for topPred in topPredictions:
             preds_withoutsegments[preds_withoutsegments == topPred] = 1
 
         preds_withoutsegments[preds_withoutsegments != 1] = 0
@@ -70,45 +59,58 @@ def sample(preds):
             preds[0] = 1
 
         # region notes and segments
+
+        preds_adjusted[index, 0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
+        
+
+    segment_preds = np.asarray(nn_preds[1]).astype('float64')
+    for index, preds in enumerate(segment_preds[0]):
+        segments = preds
         top_segment = 0
+
         for segment in segments:
             top_segment = top_segment if top_segment >= segment else segment
 
         segments[segments == top_segment] = 1
         segments[segments != 1] = 0
 
-        preds[0:constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED] = preds_withoutsegments
-        preds[constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
-              constants.ALL_NOTE_INPUT_VERTOR_SIZE] = segments
+        preds_adjusted[index, constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED:
+              constants.ALL_NOTE_INPUT_VECTOR_SIZE] = segments
 
-    return all_preds
+    return preds_adjusted
 
 
 class NeuralNetwork:
-    def __init__(self, X, Y):
+    def __init__(self, X, Y_NOTES, Y_LENGTHS):
         self.X = X
-        self.Y = Y
+        self.Y_NOTES = Y_NOTES
+        self.Y_LENGTHS = Y_LENGTHS
 
-        self.model = Sequential()
+        input_layer = Input((X.shape[1], X.shape[2]))
 
-        # LSTM Encoder for dimensionality reduction of input space and simplification/generalisation of data
-        self.model.add(LSTM(512, return_sequences=False, input_shape=(
-            X.shape[1], X.shape[2])))
+        # LSTM Encoder for dimensionality reduction of input space and simplification/generalization of data
+        start_encoder_layer = LSTM(512, return_sequences=False)(input_layer)
 
         # Second lstm to decode encoded/dimensionality reduced layer
-        self.model.add(RepeatVector(constants.PREDICTION_SIZE))
-        self.model.add(LSTM(128, return_sequences=True))
-        self.model.add(LSTM(128, return_sequences=True))
+        repeat_decoder_layer = RepeatVector(constants.PREDICTION_SIZE)(start_encoder_layer)
+        second_lstm_layer = LSTM(128, return_sequences=True)(repeat_decoder_layer)
+        third_lstm_layer = LSTM(128, return_sequences=True)(second_lstm_layer)
 
         # Repeat outputs of lstm so each output can pass by a softmax layer to predict on inputs at time step.
-        self.model.add(TimeDistributed(Dense(constants.ALL_NOTE_INPUT_VERTOR_SIZE,
-                                             activation='sigmoid', name='ouput')))
+        notes_output_layer = TimeDistributed(Dense(constants.ALL_POSSIBLE_INPUT_BOTTOM_TOP_CHOPPED,
+                                             activation='sigmoid', name='notes_output'))(third_lstm_layer)
+
+        lengths_output_layer = TimeDistributed(Dense(constants.SEGMENTS_PER_BEAT,
+                                             activation='sigmoid', name='length_output'))(third_lstm_layer)
+
+        self.model = Model(input_layer, [notes_output_layer, lengths_output_layer])
+        
 
         optimizer = RMSprop(lr=0.001)
 
-        self.model.compile(loss="binary_crossentropy",
+        self.model.compile(loss=['binary_crossentropy', 'categorical_crossentropy'],
                            optimizer=optimizer,
-                           metrics=[metrics.binary_accuracy, metrics.binary_crossentropy])
+                           metrics={ 'time_distributed' : [metrics.binary_accuracy, metrics.binary_crossentropy], 'time_distributed_1': metrics.categorical_accuracy })
 
     def on_epoch_end_stats(self, epoch, _):
         print()
@@ -139,28 +141,28 @@ class NeuralNetwork:
     def train(self):
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
-        self.model.fit(self.X, self.Y,
-                       batch_size=16,
-                       epochs=254,
+        self.model.fit(self.X, [self.Y_NOTES, self.Y_LENGTHS],
+                       batch_size=64,
+                       epochs=256,
                        shuffle=True,
-                       callbacks=[print_callback])
+                       callbacks=[print_callback, tensorboard_callback])
 
     def generate_continuation(self, last_window_slide,
                               quarter_beats_to_generate):
 
-        total_slides_to_generate = quarter_beats_to_generate * constants.SEGEMENTS_PER_BEAT
-        contuation = []
+        total_slides_to_generate = quarter_beats_to_generate * constants.SEGMENTS_PER_BEAT
+        continuation = []
 
         sequence = last_window_slide
 
         for index in range(total_slides_to_generate):
-            prediction = self.model.predict(np.array([sequence]))[0]
+            prediction = self.model.predict(np.array([sequence]))
             preds_normalized = sample(prediction)
 
             # Append following predictions while removing first item for each prediction.
             for cur_preds_normalized in preds_normalized:
-                contuation.append(cur_preds_normalized)
+                continuation.append(cur_preds_normalized)
                 sequence = np.vstack(
                     (sequence[1:sequence.shape[0]], cur_preds_normalized))
 
-        return np.array(contuation)
+        return np.array(continuation)
