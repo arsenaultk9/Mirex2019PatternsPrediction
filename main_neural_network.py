@@ -14,13 +14,13 @@ from src.models.note_info import NoteInfo
 from src.networks.poly_neural_network import NeuralNetwork
 
 directory_mono = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/'
-directory_poly = 'data/PPDD-Sep2018_sym_poly_small/prime_csv/'
+directory_poly = 'data/PPDD-Sep2018_sym_poly_medium/prime_csv/'
 directory = directory_poly
 file_name_a = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/00b7561d-c09b-41f2-bf21-537603fbe758.csv'
 file_name_b = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/0b246118-2c95-4f4d-8e70-56e89f81fda2.csv'
 
 file_names = listdir(directory)  # [file_name_a, file_name_b]
-file_names = file_names[0:99]
+file_names = file_names[0:199]
 
 file_index = 0
 X = np.zeros((0, constants.WINDOW_SLIDE_SIZE,

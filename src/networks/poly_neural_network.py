@@ -142,8 +142,8 @@ class NeuralNetwork:
         print_callback = LambdaCallback(on_epoch_end=self.on_epoch_end_stats)
 
         self.model.fit(self.X, [self.Y_NOTES, self.Y_LENGTHS],
-                       batch_size=8,
-                       epochs=512,
+                       batch_size=64,
+                       epochs=256,
                        shuffle=True,
                        callbacks=[print_callback, tensorboard_callback])
 
