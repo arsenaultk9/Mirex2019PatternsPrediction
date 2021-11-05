@@ -11,7 +11,7 @@ import src.song_csv_generator as scg
 import src.constants as constants
 
 from src.models.note_info import NoteInfo
-from src.networks.poly_neural_network import NeuralNetwork
+from src.networks.poly_attention_neural_network import NeuralNetwork
 
 directory_mono = 'data/PPDD-Sep2018_sym_mono_small/prime_csv/'
 directory_poly = 'data/PPDD-Sep2018_sym_poly_medium/prime_csv/'
